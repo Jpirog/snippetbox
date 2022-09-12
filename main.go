@@ -15,10 +15,23 @@ func home(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	// w.Header().Set("foo", "bar")
+	// doesn't work, need to get to lowercase
+	w.Header().Set("ngrok-skip-browser-warning", "true")
+	// w.Header().Add("user-agent", "ngrok-go")
+	// w.Header().Add("foo", "bar")
+
+	// 	headers := http.Header{
+	// 		"ngrok-skip-browser-warning": []string{"true"},
+	// 		"Accept": []string{"text/plain", "text/html"},
+	// }
+	// r.Header["ngrok-skip-browser-warning"] = []string{"true"}
 
 	log.Print("Responding to a request at ", time.Now())
 	log.Print(" -- Host", r.Host, r.URL.Path)
 	log.Print(" -- RemoteAddr", r.RemoteAddr)
+	log.Print(w.Header())
+	// w.WriteHeader(200)
 	w.Write([]byte("Hello from Snippetbox, current timestamp is " + time.Now().String()))
 }
 
