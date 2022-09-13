@@ -15,8 +15,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	// w.Header().Set("foo", "bar")
-	// doesn't work, need to get to lowercase
+	w.Header().Set("foo", "bar")
 	// w.Header().Set("ngrok-skip-browser-warning", "true")
 	w.Header()["ngrok-skip-browser-warning"] = []string{"true"}
 	// w.Header().Add("user-agent", "ngrok-go")
