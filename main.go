@@ -17,7 +17,8 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 	// w.Header().Set("foo", "bar")
 	// doesn't work, need to get to lowercase
-	w.Header().Set("ngrok-skip-browser-warning", "true")
+	// w.Header().Set("ngrok-skip-browser-warning", "true")
+	w.Header()["ngrok-skip-browser-warning"] = []string{"true"}
 	// w.Header().Add("user-agent", "ngrok-go")
 	// w.Header().Add("foo", "bar")
 
@@ -37,11 +38,20 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 func snippetView(w http.ResponseWriter, r *http.Request) {
 	log.Print("snippetView request", r.URL.Path)
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
 	w.Write([]byte("Displaying a specific snippet..."))
 }
 
 func snippetCreate(w http.ResponseWriter, r *http.Request) {
 	log.Print("snippetCreate request", r.URL.Path)
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", "Post")
+		w.WriteHeader(405)
+		w.Write(([]byte("Method not allowed")))
+		return
+	}
 	w.Write([]byte("Create a new snippet..."))
 }
 
