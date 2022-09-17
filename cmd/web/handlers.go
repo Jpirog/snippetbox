@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"strconv"
@@ -14,6 +15,33 @@ func home(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+
+	// Initialize a slice containing the paths to the two files. It's important
+	// to note that the file containing our base template must be the *first*
+	// file in the slice.
+	files := []string{
+		"./ui/html/base.tmpl",
+		"./ui/html/partials/nav.tmpl",
+		"./ui/html/pages/home.tmpl",
+	}
+
+	// Use the template.ParseFiles() function to read the files and store the
+	// templates in a template set. Notice that we can pass the slice of file
+	// paths as a variadic parameter?
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		log.Print("1" + err.Error())
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	err = ts.ExecuteTemplate(w, "base", nil)
+	if err != nil {
+		log.Print("2" + err.Error())
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
 	w.Header().Set("foo", "bar")
 	// w.Header().Set("ngrok-skip-browser-warning", "true")
 	w.Header()["ngrok-skip-browser-warning"] = []string{"true"}
