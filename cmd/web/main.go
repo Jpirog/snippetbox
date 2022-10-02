@@ -1,21 +1,16 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"net/http"
-	"os"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
-	port := os.Getenv("PORT")
+	host := flag.String("host", "localhost", "HTTP network address")
+	port := flag.Int("port", 7999, "HTTP port")
+	flag.Parse()
 
 	mux := http.NewServeMux()
 
@@ -34,7 +29,8 @@ func main() {
 	mux.HandleFunc("/snippet/view", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)
 
-	log.Print("Starting server on port ", port)
-	err = http.ListenAndServe(":"+port, mux)
-	log.Fatal(err)
+	fullname := fmt.Sprintf("%s:%d", *host, *port)
+	log.Printf("Starting server on port %v ", fullname)
+	herr := http.ListenAndServe(fullname, mux)
+	log.Fatal(herr)
 }
