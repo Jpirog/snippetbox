@@ -5,12 +5,16 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
 	host := flag.String("host", "localhost", "HTTP network address")
 	port := flag.Int("port", 7999, "HTTP port")
 	flag.Parse()
+
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime)
 
 	mux := http.NewServeMux()
 
@@ -30,7 +34,13 @@ func main() {
 	mux.HandleFunc("/snippet/create", snippetCreate)
 
 	fullname := fmt.Sprintf("%s:%d", *host, *port)
-	log.Printf("Starting server on port %v ", fullname)
-	herr := http.ListenAndServe(fullname, mux)
-	log.Fatal(herr)
+	srv := &http.Server{
+		Addr:     fullname,
+		ErrorLog: errorLog,
+		Handler:  mux,
+	}
+
+	infoLog.Printf("Starting server on port %v ", fullname)
+	herr := srv.ListenAndServe()
+	errorLog.Fatal(herr)
 }
