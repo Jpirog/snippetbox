@@ -7,14 +7,23 @@ import (
 	"net/http"
 	"os"
 )
+type application struct{
+	errorLog *log.Logger
+	infoLog  *log.Logger
+}
 
 func main() {
 	host := flag.String("host", "localhost", "HTTP network address")
 	port := flag.Int("port", 7999, "HTTP port")
 	flag.Parse()
 
-	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime)
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime|log.Llongfile)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Llongfile)
+
+	app := &application{
+		errorLog: errorLog,
+		infoLog: infoLog,
+	}
 
 	mux := http.NewServeMux()
 
@@ -29,9 +38,9 @@ func main() {
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
 	// register the base path to the home function
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/snippet/view", snippetView)
-	mux.HandleFunc("/snippet/create", snippetCreate)
+	mux.HandleFunc("/", app.home)
+	mux.HandleFunc("/snippet/view", app.snippetView)
+	mux.HandleFunc("/snippet/create", app.snippetCreate)
 
 	fullname := fmt.Sprintf("%s:%d", *host, *port)
 	srv := &http.Server{

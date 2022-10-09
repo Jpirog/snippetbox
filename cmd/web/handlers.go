@@ -10,7 +10,7 @@ import (
 )
 
 // this is the base home handler
-func home(w http.ResponseWriter, r *http.Request) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
@@ -30,14 +30,14 @@ func home(w http.ResponseWriter, r *http.Request) {
 	// paths as a variadic parameter?
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Print("1" + err.Error())
+		app.errorLog.Print("1" + err.Error())
 		http.Error(w, err.Error(), 500)
 		return
 	}
 
 	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
-		log.Print("2" + err.Error())
+		app.errorLog.Print("2" + err.Error())
 		http.Error(w, err.Error(), 500)
 		return
 	}
@@ -61,7 +61,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello from Snippetbox, current timestamp is " + time.Now().String()))
 }
 
-func snippetView(w http.ResponseWriter, r *http.Request) {
+func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	log.Print("snippetView request", r.URL.Path)
 	if r.Method != "GET" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -74,7 +74,7 @@ func snippetView(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Displaying a specific snippet (%d)...", id)
 }
 
-func snippetCreate(w http.ResponseWriter, r *http.Request) {
+func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	log.Print("snippetCreate request", r.URL.Path)
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", "Post")
