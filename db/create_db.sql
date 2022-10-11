@@ -2,7 +2,8 @@ CREATE DATABASE snippetbox CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Create a `snippets` table.
 CREATE TABLE snippets (
-id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, title VARCHAR(100) NOT NULL,
+id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+title VARCHAR(100) NOT NULL,
 content TEXT NOT NULL,
 created DATETIME NOT NULL,
 expires DATETIME NOT NULL
@@ -30,4 +31,4 @@ DATE_ADD(UTC_TIMESTAMP(), INTERVAL 7 DAY)
 CREATE USER 'web'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON snippetbox.* TO 'web'@'localhost'; 
 -- Important: Make sure to swap 'pass' with a password of your own choosing. 
-ALTER USER 'web'@'localhost' IDENTIFIED BY 'mysql';
+ALTER USER 'web'@'localhost' IDENTIFIED BY 'mysql'; -- this isn't working!!!
