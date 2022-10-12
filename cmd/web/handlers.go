@@ -1,12 +1,15 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
+
+	"snippetbox.johnpirog.com/internal/models"
 )
 
 // this is the base home handler
@@ -67,7 +70,17 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	if err != nil || id < 1 {
 		app.notFound(w)
 	}
-	fmt.Fprintf(w, "Displaying a specific snippet (%d)...", id)
+	fmt.Fprintf(w, "Displaying a specific snippet (%d)...\n", id)
+	snippet, err := app.snippets.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+	fmt.Fprintf(w, "%+v", snippet)
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
