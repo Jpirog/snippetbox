@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 
-	// "html/template"
 	"log"
 	"net/http"
 	"strconv"
@@ -34,32 +33,32 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// Initialize a slice containing the paths to the two files. It's important
 	// to note that the file containing our base template must be the *first*
 	// file in the slice.
-	files := []string{
-		"./ui/html/base.tmpl",
-		"./ui/html/partials/nav.tmpl",
-		"./ui/html/pages/home.tmpl",
-	}
+	// files := []string{
+	// 	"./ui/html/base.tmpl",
+	// 	"./ui/html/partials/nav.tmpl",
+	// 	"./ui/html/pages/home.tmpl",
+	// }
 
 	// Use the template.ParseFiles() function to read the files and store the
 	// templates in a template set. Notice that we can pass the slice of file
 	// paths as a variadic parameter?
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.errorLog.Print("1" + err.Error())
-		app.serverError(w, err)
-		return
-	}
+	// ts, err := template.ParseFiles(files...)
+	// if err != nil {
+	// 	app.errorLog.Print("1" + err.Error())
+	// 	app.serverError(w, err)
+	// 	return
+	// }
 
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.errorLog.Print("2" + err.Error())
-		app.serverError(w, err)
-		return
-	}
+	// err = ts.ExecuteTemplate(w, "base", nil)
+	// if err != nil {
+	// 	app.errorLog.Print("2" + err.Error())
+	// 	app.serverError(w, err)
+	// 	return
+	// }
 
-	w.Header().Set("foo", "bar")
-	// w.Header().Set("ngrok-skip-browser-warning", "true")
-	w.Header()["ngrok-skip-browser-warning"] = []string{"true"}
+	// w.Header().Set("foo", "bar")
+	// // w.Header().Set("ngrok-skip-browser-warning", "true")
+	// w.Header()["ngrok-skip-browser-warning"] = []string{"true"}
 	// w.Header().Add("user-agent", "ngrok-go")
 	// w.Header().Add("foo", "bar")
 
@@ -73,7 +72,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	log.Print(" -- Host", r.Host, r.URL.Path)
 	log.Print(" -- RemoteAddr", r.RemoteAddr)
 	log.Print(w.Header())
-	w.Write([]byte("Hello from Snippetbox, current timestamp is " + time.Now().String()))
+	// w.Write([]byte("Hello from Snippetbox, current timestamp is " + time.Now().String()))
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -81,8 +80,9 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
+		return
 	}
-	fmt.Fprintf(w, "Displaying a specific snippet (%d)...\n", id)
+	// fmt.Fprintf(w, "Displaying a specific snippet (%d)...\n", id)
 	snippet, err := app.snippets.Get(id)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
@@ -92,7 +92,26 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	fmt.Fprintf(w, "%+v", snippet)
+	// fmt.Fprintf(w, "%+v", snippet)
+	files := []string{
+		"./ui/html/base.tmpl",
+		"./ui/html/partials/nav.tmpl",
+		"./ui/html/pages/view.tmpl",
+	}
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	data := &templateData{
+		Snippet: snippet,
+	}
+
+	err = ts.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		app.serverError(w, err)
+	}
+
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
