@@ -25,9 +25,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.render(w, http.StatusOK, "home.tmpl", &templateData{
-		Snippets: snippets,
-	})
+	data := app.newTemplateData(r) // diff than book
+	data.Snippets = snippets
+
+	app.render(w, http.StatusOK, "home.tmpl", data)
 
 	log.Print("Responding to a request at ", time.Now())
 	log.Print(" -- Host", r.Host, r.URL.Path)
@@ -42,7 +43,7 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
-	// fmt.Fprintf(w, "Displaying a specific snippet (%d)...\n", id)
+
 	snippet, err := app.snippets.Get(id)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
@@ -53,9 +54,10 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.render(w, http.StatusOK, "view.tmpl", &templateData{
-		Snippet: snippet,
-	})
+	data := app.newTemplateData(r)
+	data.Snippet = snippet
+
+	app.render(w, http.StatusOK, "view.tmpl", data)
 
 }
 
