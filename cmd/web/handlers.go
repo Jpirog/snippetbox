@@ -9,15 +9,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/julienschmidt/httprouter"
 	"snippetbox.johnpirog.com/internal/models"
 )
 
 // this is the base home handler
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		app.notFound(w)
-		return
-	}
 
 	snippets, err := app.snippets.Latest()
 	if err != nil {
@@ -30,15 +27,16 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	app.render(w, http.StatusOK, "home.tmpl", data)
 
-	log.Print("Responding to a request at ", time.Now())
-	log.Print(" -- Host", r.Host, r.URL.Path)
-	log.Print(" -- RemoteAddr", r.RemoteAddr)
+	log.Print("Responding to a request at: ", time.Now())
+	log.Print(" -- Host: ", r.Host, r.URL.Path)
+	log.Print(" -- RemoteAddr: ", r.RemoteAddr)
 	log.Print(w.Header())
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	log.Print("snippetView request", r.URL.Path)
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	params := httprouter.ParamsFromContext(r.Context())
+	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -62,13 +60,11 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Display the form for a new snippet..."))
+}
+
+func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 	log.Print("snippetCreate request", r.URL.Path)
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", "Post")
-		// w.WriteHeader(405)
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
 
 	title := "O snail"
 	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
@@ -80,5 +76,5 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/snippet/view?id=%d", id), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
